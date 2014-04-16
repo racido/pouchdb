@@ -286,12 +286,12 @@ adapters.forEach(function (adapters) {
                             doc.value.should.equal('db1');
                             db1.allDocs({ include_docs: true },
                               function (err, res) {
-                              res.rows.should.have.length.above(0);
+                              res.rows.should.have.length.above(0, 'first');
                               // redundant but we want to test it
                               res.rows[0].doc.value.should.equal('db1');
                               db2.allDocs({ include_docs: true },
                                 function (err, res) {
-                                res.rows.should.have.length.above(0);
+                                res.rows.should.have.length.above(0, 'second');
                                 res.rows[0].doc.value.should.equal('db1');
                                 done();
                               });
