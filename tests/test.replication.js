@@ -1276,16 +1276,23 @@ adapters.forEach(function (adapters) {
           if (ids.indexOf('a') >= 0) {
             callback(null, [{ok: true, id: 'a', rev: '1-a'}]);
           } else if (ids.indexOf('b') >= 0) {
-            callback(null, [{id: 'b', error: 'internal server error'}]);
+            callback(null, [{
+              id: 'b',
+              error: 'internal server error',
+              reason: 'test document write error'
+            }]);
           } else {
             bulkDocs.apply(this, arguments);
           }
         };
 
         db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
-          result.docs_read.should.equal(2, 'docs_read');
-          result.docs_written.should.equal(1, 'docs_written');
-          result.doc_write_failures.should.equal(1, 'doc_write_failures');
+          console.log('replicate complete ' + JSON.stringify(arguments));
+          should.not.exist(result);
+          should.exist(err);
+          err.result.docs_read.should.equal(2, 'docs_read');
+          err.result.docs_written.should.equal(1, 'docs_written');
+          err.result.doc_write_failures.should.equal(1, 'doc_write_failures');
           remote.bulkDocs = bulkDocs;
           db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
             // checkpoint should not be moved past first doc
@@ -1313,10 +1320,12 @@ adapters.forEach(function (adapters) {
         };
 
         db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
-          result.docs_read.should.equal(1, 'docs_read');
-          result.docs_written.should.equal(0, 'docs_written');
-          result.doc_write_failures.should.equal(1, 'doc_write_failures');
-          result.last_seq.should.equal(0, 'last_seq');
+          should.not.exist(result);
+          should.exist(err);
+          err.result.docs_read.should.equal(1, 'docs_read');
+          err.result.docs_written.should.equal(0, 'docs_written');
+          err.result.doc_write_failures.should.equal(1, 'doc_write_failures');
+          err.result.last_seq.should.equal(0, 'last_seq');
           remote.bulkDocs = bulkDocs;
           db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
             result.doc_write_failures.should
