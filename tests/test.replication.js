@@ -1287,7 +1287,6 @@ adapters.forEach(function (adapters) {
         };
 
         db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
-          console.log('replicate complete ' + JSON.stringify(arguments));
           should.not.exist(result);
           should.exist(err);
           err.result.docs_read.should.equal(2, 'docs_read');
