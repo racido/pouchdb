@@ -13,10 +13,7 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     }, 0);
   };
   this.changes = function (opts) {
-    var promise = new PouchDB.utils.Promise(function (fulfill, reject) {
-      fulfill({results: []});
-    });
-    return promise;
+    return PouchDB.utils.Promise.resolve({results: []});
   };
 }
 function getCallback(expectError, done) {
