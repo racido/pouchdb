@@ -13,6 +13,9 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     }, 0);
   };
   this.changes = function (opts) {
+    if (opts.complete) {
+      opts.complete(null, {results: []});
+    }
     return PouchDB.utils.Promise.resolve({results: []});
   };
 }
