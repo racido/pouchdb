@@ -1,5 +1,6 @@
 'use strict';
 function MockDatabase(statusCodeToReturn, dataToReturn) {
+  this.type = function () { return 'mock'; };
   this.id = function (callback) {
     callback(123);
   };
