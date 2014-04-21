@@ -5,13 +5,15 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     callback(123);
   };
   this.get = function (id, callback) {
-    setTimeout(function () {
-      if (statusCodeToReturn !== 200) {
-        callback({ status: statusCodeToReturn }, dataToReturn);
-      } else {
-        callback(null, dataToReturn);
-      }
-    }, 0);
+    return new PouchDB.utils.Promise(function (fulfill, reject) {
+      setTimeout(function () {
+        if (statusCodeToReturn !== 200) {
+          reject({ status: statusCodeToReturn });
+        } else {
+          fulfill(dataToReturn);
+        }
+      }, 0);
+    });
   };
   this.changes = function (opts) {
     if (opts.complete) {
