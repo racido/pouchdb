@@ -1272,18 +1272,29 @@ adapters.forEach(function (adapters) {
       db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
         var bulkDocs = remote.bulkDocs;
         remote.bulkDocs = function (content, opts, callback) {
-          var ids = content.docs.map(function (doc) { return doc._id; });
-          if (ids.indexOf('a') >= 0) {
-            callback(null, [{ok: true, id: 'a', rev: '1-a'}]);
-          } else if (ids.indexOf('b') >= 0) {
-            callback(null, [{
-              id: 'b',
-              error: 'internal server error',
-              reason: 'test document write error'
-            }]);
-          } else {
-            bulkDocs.apply(this, arguments);
-          }
+          return new PouchDB.utils.Promise(function (fulfill, reject) {
+            if (typeof callback !== 'function') {
+              callback = function (err, resp) {
+                if (err) {
+                  reject(err);
+                } else {
+                  fulfill(resp);
+                }
+              };
+            }
+            var ids = content.docs.map(function (doc) { return doc._id; });
+            if (ids.indexOf('a') >= 0) {
+              callback(null, [{ok: true, id: 'a', rev: '1-a'}]);
+            } else if (ids.indexOf('b') >= 0) {
+              callback(null, [{
+                id: 'b',
+                error: 'internal server error',
+                reason: 'test document write error'
+              }]);
+            } else {
+              bulkDocs.apply(remote, [content, opts, callback]);
+            }
+          });
         };
 
         db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
@@ -1315,6 +1326,9 @@ adapters.forEach(function (adapters) {
       db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
         var bulkDocs = remote.bulkDocs;
         remote.bulkDocs = function (docs, opts, callback) {
+          if (typeof callback !== 'function') {
+            return PouchDB.utils.Promise.reject(new Error());
+          }
           callback(new Error());
         };
 
