@@ -72,7 +72,7 @@ matrix:
   allow_failures:
   - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
 
-branches:
-  only:
-  - master
-  - /^pull*$/
+# branches:
+#   only:
+#   - master
+#   - /^pull*$/
