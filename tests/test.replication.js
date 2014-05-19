@@ -1792,7 +1792,16 @@ interHTTPAdapters.map(function (adapters) {
         var count = 0;
         var replicate = db.replicate.from(dbs.remote, {
           server: true,
-          live: true
+          live: true,
+          complete: function () {
+            remote.put(doc2);
+            // This setTimeout is needed to ensure no further changes come
+            // through
+            setTimeout(function () {
+              count.should.equal(4);
+              changes.cancel();
+            }, 200);
+          }
         });
         var changes = db.changes({
           live: true,
@@ -1803,15 +1812,10 @@ interHTTPAdapters.map(function (adapters) {
             }
             if (count === 4) {
               replicate.cancel();
-              remote.put(doc2);
-              // This setTimeout is needed to ensure no further changes come
-              // through
-              setTimeout(function () {
-                count.should.equal(4);
-                changes.cancel();
-                done();
-              }, 500);
             }
+          },
+          complete: function () {
+            done();
           }
         });
       });
